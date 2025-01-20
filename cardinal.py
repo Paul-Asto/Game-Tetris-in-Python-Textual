@@ -41,7 +41,7 @@ class CardinalPair:
     
 
     def __eq__(self, other: object) -> bool:
-        if issubclass(other, CardinalPair):
+        if isinstance(other, CardinalPair):
             return self.value == other.value
         
         return False
@@ -67,6 +67,13 @@ class Vector(CardinalPair):
     def __init__(self, y, x):
         super().__init__(y, x)
 
+    
+    def get_rotate_left(self) -> "Vector":
+        return Vector(-(self.x), self.y)
+
+    def get_rotate_right(self)-> "Vector":
+        return Vector(self.x, -(self.y))
+
 
 
 class Coord(CardinalPair):
@@ -90,4 +97,8 @@ class Coord(CardinalPair):
             raise TypeError("El parametro no es un Vector")
 
         self.value += vector
+
+    
+    def set_value(self, value: tuple[int, int]):
+        self.value = value
         
