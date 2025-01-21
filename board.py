@@ -1,5 +1,12 @@
 from typing import Literal
+from abc import ABC, abstractmethod
 from cardinal import Coord
+from rich.text import Text
+from rich.console import Console   
+
+from tetrimino import Tetrimino_O
+
+
 
 
 Color = Literal[
@@ -26,7 +33,7 @@ Color = Literal[
 
 class Square:
     freeze: bool = False
-    is_empty: bool = True
+    is_occupiable: bool = False
 
     def __init__(self, style: Color):
         self.__style: Color = style
@@ -45,8 +52,29 @@ class Square:
 
 
 
+class IBoard(ABC): 
+
+    @property
+    @abstractmethod
+    def view(self) -> Text: ...
+
+    @abstractmethod
+    def print_coords(self, *coords: Coord, style: str, is_ocupiable: bool): ...
+
+    @abstractmethod
+    def clear_coords(self, *coords: Coord): ...
+
+    @abstractmethod
+    def get_square(self, coord: Coord) -> Square: ...
+
+    @abstractmethod
+    def square_is_empty(self, *coords: Coord) -> bool: ...    
+    
+
+
+
 class Board:
-    default_color: Color = "white"
+    default_color: Color = "red"
 
     size_y: int 
     size_x: int 
@@ -64,32 +92,35 @@ class Board:
         ])
 
 
-    def __str__(self):
-        result: str = ""
+    @property
+    def view(self):
+        result: Text = Text()
 
         for column in self.content:
             for square in column:
-                if square.is_empty: 
-                    result += ".."
+                if square.is_occupiable:
+                    result.append("[]", style= f"bold on {square.style}")  
                 else: 
-                    result += "[]"
+                    result.append("..", style= f"bold on {square.style}")
 
-            result += "\n"
+            result.append("\n")
 
         return result
 
         
 
-    def print_coords(self, *coords: Coord):
+    def print_coords(self, *coords: Coord, style: str, is_ocupiable: bool = True):
         for coord in coords:
             square: Square = self.get_square(coord)
-            square.is_empty = False
+            square.style = style
+            square.is_occupiable = is_ocupiable
 
 
     def clear_coords(self, *coords: Coord):
         for coord in coords:
             square: Square = self.get_square(coord)
-            square.is_empty = True
+            square.style = self.default_color
+            square.is_occupiable = False
 
 
     def clear_content(self):
@@ -102,8 +133,18 @@ class Board:
         return self.content[coord.y][coord.x]
 
 
+    def is_valid_coords(self, *coords: Coord) -> bool:
+        return all([
+            0 <= coord.y < self.size_y and 0 <= coord.x < self.size_x
+            for coord in coords
+        ])
+
+
     def square_is_empty(self, *coords: Coord) -> bool:
-        return all([self.get_square(coord).is_empty for coord in coords])
+        if not self.is_valid_coords(*coords):
+            return False
+        
+        return all([not self.get_square(coord).is_occupiable for coord in coords])
     
 
     # Funcions Coords in Limits
