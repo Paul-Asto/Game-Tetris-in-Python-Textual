@@ -94,9 +94,10 @@ class Coord(CardinalPair):
 
     def move(self, vector: Vector):
         if not isinstance(vector, Vector):
-            raise TypeError("El parametro no es un Vector")
+            raise TypeError("El parametro no es un Vector")   
 
-        self.value += vector
+        new_value = self + vector
+        self.set_value(new_value.value)
 
     
     def set_value(self, value: tuple[int, int]):
