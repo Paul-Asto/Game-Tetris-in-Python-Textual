@@ -45,6 +45,10 @@ class CardinalPair:
             return self.value == other.value
         
         return False
+
+
+    def __hash__(self):
+        return hash(self.value)
     
 
     def __iter__(self) -> tuple[int, int]:
