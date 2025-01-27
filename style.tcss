@@ -1,0 +1,51 @@
+#board_principal{
+    height: 40;
+    width: 50;
+    layout: grid;
+    grid-size: 10 20;
+}
+
+#board_next_pieces{
+    layout: grid;
+    grid-size: 6 10;
+}
+
+Block{
+    height: 2;
+    width: 5;
+    background: white;
+    border: solid;
+}
+
+
+.red{
+    background: red;
+}
+
+.green{
+    background: green;
+}
+
+.yellow{
+    background: yellow;
+}
+
+.blue{
+    background: blue;
+}
+
+.magenta{
+    background: magenta;
+}
+
+.orange{
+    background: orange;
+}
+
+.purple{
+    background:purple;
+}
+
+.gray{
+    background: gray;
+}
