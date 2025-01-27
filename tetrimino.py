@@ -23,7 +23,7 @@ class ITetrimino(ABC):
     def reset(self): ...
 
     @abstractmethod
-    def rotate(self): ...
+    def rotate(self) -> bool: ...
 
     @abstractmethod
     def mov_max_bot(self): ...
@@ -94,12 +94,19 @@ class Tetrimino(ITetrimino):
             new_coords_blocks = self.gen_coords_blocks(coord_core= new_coord_core)
 
             if not self.board.square_is_empty(*new_coords_blocks):
-                return result_coords_blocks
+                break
             
             result_coords_blocks = new_coords_blocks
 
             if self.board.in_max_limit_bot(*new_coords_blocks):
-                return result_coords_blocks 
+                break
+        
+        blocks_no_repeat = all([not block in self.coords_blocks for block in result_coords_blocks])
+
+        if blocks_no_repeat:
+            return result_coords_blocks
+
+        return ()
 
 
     @property
@@ -160,7 +167,7 @@ class Tetrimino(ITetrimino):
         self.coord_core.move(vector)
 
 
-    def rotate(self):
+    def rotate(self) -> bool:
         if self.board.in_max_limit_left(self.coord_core):
             self.mov_right()
 
@@ -177,17 +184,17 @@ class Tetrimino(ITetrimino):
         new_coords_blocks: tuple[Coord] = self.gen_coords_blocks(vectors= new_vectors)
 
         if not self.board.square_is_empty(*new_coords_blocks):
-            return
+            return False
         
         self.__vectors_gen_coords_blocks = new_vectors
+        return True
 
 
     def mov_max_bot(self):
-        if self.shadow_coords_blocks == ():
-            return
+        if self.shadow_coords_blocks != ():
+            new_coord = self.shadow_coords_blocks[0]
+            self.coord_core.set_value(new_coord.value)
 
-        new_coord = self.shadow_coords_blocks[0]
-        self.coord_core.set_value(new_coord.value)
         self.is_active = False        
 
 
@@ -219,15 +226,6 @@ class Tetrimino(ITetrimino):
 
 
 # Clases de las Piezas
-class Tetrimino_I(Tetrimino):
-
-    def __init__(self):
-        super().__init__()
-
-        self.vectors_gen_coords_blocks = (Vector(0, -1), Vector(0, 1), Vector(0, 2))
-        self.color = "cyan"
-
-
 class Tetrimino_O(Tetrimino):
 
     def __init__(self):
@@ -239,6 +237,7 @@ class Tetrimino_O(Tetrimino):
     def rotate(self): pass
 
 
+
 class Tetrimino_T(Tetrimino):
 
     def __init__(self):
@@ -246,6 +245,7 @@ class Tetrimino_T(Tetrimino):
 
         self.vectors_gen_coords_blocks = (Vector(-1, 0), Vector(0, 1), Vector(0, -1))
         self.color = "purple"
+
 
 
 class Tetrimino_S(Tetrimino):
@@ -284,3 +284,81 @@ class Tetrimino_L(Tetrimino):
         super().__init__()
         self.vectors_gen_coords_blocks = (Vector(0, -1), Vector(0, 1), Vector(-1, 1))
         self.color = "orange"
+
+
+
+class Tetrimino_I(Tetrimino):
+
+    def __init__(self):
+        super().__init__()
+
+        self.vectors_gen_coords_blocks = (Vector(0, -1), Vector(0, 1), Vector(0, 2))
+        self.color = "magenta"
+        self.index_rotate: Cycle = Cycle(0, 3)
+
+
+    def rotate(self) -> bool:
+        state_rotate = self.index_rotate.index_pointer
+
+        coord_right = self.coord_core + Vector(0, 1)
+        coord_bot = self.coord_core + Vector(1, 0)   
+        
+        if state_rotate == 0:
+            self.mov_right()
+
+            if self.board.in_max_limit_bot(coord_bot):
+                self.mov_top()
+
+            elif self.board.in_max_limit_bot(self.coord_core):
+                self.mov_top()
+                self.mov_top()
+
+        elif state_rotate == 1:
+            self.mov_bot()
+
+            if self.board.in_max_limit_left(self.coord_core):
+                self.mov_right()
+
+        elif state_rotate == 2:
+            self.mov_left()
+
+        elif state_rotate == 3:
+            self.mov_top() 
+
+            if self.board.in_max_limit_right(coord_right):
+                self.mov_left()
+            
+            elif self.board.in_max_limit_right(self.coord_core):
+                self.mov_left()
+                self.mov_left()
+                
+
+        result_rotate: bool = super().rotate()
+
+        if result_rotate:
+            self.index_rotate.add_pointer()
+
+
+    def reset(self):
+        self.index_rotate.reset()
+        super().reset()
+
+
+
+class Cycle:
+
+    def __init__(self, start: int, end: int):
+        self.start: int = start
+        self.end: int = end
+
+        self.index_pointer: int = start 
+
+    def reset(self):
+        self.index_pointer = self.start
+
+    def add_pointer(self):
+        if not self.index_pointer < self.end:
+            self.reset()
+            return
+        
+        self.index_pointer += 1

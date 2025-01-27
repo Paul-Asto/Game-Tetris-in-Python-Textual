@@ -1,11 +1,9 @@
 from typing import Literal
 from abc import ABC, abstractmethod
+from observer_interface import Observed
+
 from cardinal import Coord
 from rich.text import Text
-from rich.console import Console   
-
-from tetrimino import Tetrimino_O
-
 
 
 
@@ -31,7 +29,7 @@ Color = Literal[
 
 
 
-class Square:
+class Square(Observed):
     freeze: bool = False
     is_occupiable: bool = False
 
@@ -49,10 +47,12 @@ class Square:
             return 
         
         self.__style = value
+        self.report_changes()
 
 
 
 class IBoard(ABC): 
+    content: list[list[Square]]
 
     @property
     @abstractmethod
@@ -68,28 +68,60 @@ class IBoard(ABC):
     def get_square(self, coord: Coord) -> Square: ...
 
     @abstractmethod
+    def get_file(self, index: int) -> tuple[Square]: ...
+
+    @abstractmethod
+    def clear_square(self, square: Square): ...
+
+    @abstractmethod
+    def clear_file(self, index: int): ...
+
+    @abstractmethod
+    def clear_content(self): ...
+
+    @abstractmethod
     def square_is_empty(self, *coords: Coord) -> bool: ...    
+
+    @abstractmethod
+    def square_is_occupiable(self, *coords: Coord) -> bool: ... 
+
     
+    @abstractmethod
+    def file_is_occupiable(self, index: int) -> bool: ...
+
+    @abstractmethod
+    def file_is_empty(self, index: int) -> bool: ...
+
+
+    @abstractmethod
+    def is_valid_coords(self, *coords: Coord) -> bool: ...
+
+    @abstractmethod
+    def is_valid_coord_y(self, index: int) -> bool: ...
+
+    @abstractmethod
+    def is_valid_coord_x(self, index: int) -> bool: ...
 
 
 
 class Board:
-    default_color: Color = "red"
+    default_color: Color = "white"
 
     size_y: int 
     size_x: int 
 
-    content:tuple[tuple[Square]]
+    content:list[list[Square]]
+
 
     def __init__(self, size_y: int, size_x: int):
         self.size_y = size_y
         self.size_x = size_x
 
-        self.content = tuple([
-            tuple([
+        self.content = [
+            [
                 Square(self.default_color) for _ in range(self.size_x)
-            ]) for _ in range(self.size_y)
-        ])
+            ] for _ in range(self.size_y)
+        ]
 
 
     @property
@@ -108,7 +140,6 @@ class Board:
         return result
 
         
-
     def print_coords(self, *coords: Coord, style: str, is_ocupiable: bool = True):
         for coord in coords:
             square: Square = self.get_square(coord)
@@ -119,25 +150,47 @@ class Board:
     def clear_coords(self, *coords: Coord):
         for coord in coords:
             square: Square = self.get_square(coord)
-            square.style = self.default_color
-            square.is_occupiable = False
+            self.clear_square(square)
+
+
+    def clear_square(self, square: Square):
+        square.style = self.default_color
+        square.freeze = False
+        square.is_occupiable = False
 
 
     def clear_content(self):
         for column in self.content:
             for square in column:
-                square.style = self.default_color
+                self.clear_square(square)
+
+
+    def clear_file(self, index: int):
+        for square in self.get_file(index):
+            self.clear_square(square)
 
 
     def get_square(self, coord: Coord) -> Square:
         return self.content[coord.y][coord.x]
+    
+
+    def get_file(self, index: int) -> tuple[Square]:
+        return tuple(self.content[index])
 
 
     def is_valid_coords(self, *coords: Coord) -> bool:
         return all([
-            0 <= coord.y < self.size_y and 0 <= coord.x < self.size_x
+            self.is_valid_coord_y(coord.y) and self.is_valid_coord_x(coord.x)
             for coord in coords
         ])
+    
+
+    def is_valid_coord_y(self, index: int) -> bool:
+        return 0 <= index < self.size_y 
+
+
+    def is_valid_coord_x(self, index: int) -> bool:
+        return 0 <= index < self.size_x
 
 
     def square_is_empty(self, *coords: Coord) -> bool:
@@ -146,6 +199,27 @@ class Board:
         
         return all([not self.get_square(coord).is_occupiable for coord in coords])
     
+
+    def square_is_occupiable(self, *coords: Coord) -> bool:
+        if not self.is_valid_coords(*coords):
+            return False
+        
+        return all([self.get_square(coord).is_occupiable for coord in coords])
+    
+
+    def file_is_empty(self, index: int) -> bool:
+        if not self.is_valid_coord_y(index):
+            return False
+        
+        return all([not square.is_occupiable for square in self.get_file(index)])
+        
+
+    def file_is_occupiable(self, index: int) -> bool:
+        if not self.is_valid_coord_y(index):
+            return False
+        
+        return all([square.is_occupiable for square in self.get_file(index)])
+        
 
     # Funcions Coords in Limits
     def in_max_limit_left(self, *coords: Coord) -> bool:
@@ -161,7 +235,8 @@ class Board:
 
 
     def in_max_limit_bot(self, *coords: Coord) -> bool:
-        return any([coord.y >= self.size_y - 1 for coord in coords])
+        return any([coord.y == self.size_y - 1 for coord in coords])    
+
     
     def in_max_limits(self, *coords: Coord) -> bool:
         return any((
@@ -170,6 +245,7 @@ class Board:
             self.in_max_limit_left(*coords),
             self.in_max_limit_right(*coords),
         ))
+
 
 
 class TetrisBoard(Board):

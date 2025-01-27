@@ -28,13 +28,11 @@ class TetrisGame:
     def current_tetrimino(self) -> "ITetrimino":
         return self.__current_tetrimino
     
-
     @current_tetrimino.setter
     def current_tetrimino(self, value: "ITetrimino"):
         self.__current_tetrimino = value
         self.__current_tetrimino.coord_core.set_value((1, 4))
         self.__current_tetrimino.board = self.board
-        
 
 
     def run(self):
@@ -50,7 +48,6 @@ class TetrisGame:
             style= color_shadow,
             is_ocupiable= False,
         )
-
 
         coords_blocks = self.current_tetrimino.coords_blocks
         color = self.current_tetrimino.color
@@ -72,13 +69,53 @@ class TetrisGame:
         if self.current_tetrimino.is_active:
             return
         
+        self.file_collapse()
+        
         self.current_tetrimino.reset()
         self.current_tetrimino = self.disp_tetrimino.next_item
         self.printTetrimino()
 
 
-    # Funciones de movimiento
+    def file_collapse(self):
+        # get index files update
+        index_files_update = [
+            coord.y for coord in self.current_tetrimino.coords_blocks
+            if self.board.file_is_occupiable(coord.y)
+            ]
+        
+        index_files_update = list(set(index_files_update)) # se elminina repeticiones
+        index_files_update.sort()
 
+        if len(index_files_update) == 0:
+            return
+
+        # limpiando las filas actualizadas si estan llenas
+        for index_update in index_files_update:
+            self.board.clear_file(index_update)
+
+        # iniciando colapso de filas flotantes
+        for index_update in index_files_update:
+            current_index = index_update
+
+            while True:
+                top_index = current_index - 1
+                
+                if not self.board.is_valid_coord_y(top_index):
+                    break
+
+                if self.board.file_is_empty(top_index):
+                    break
+
+                top_file = self.board.get_file(top_index)
+                current_file = self.board.get_file(current_index)
+
+                self.board.content[top_index] = current_file
+                self.board.content[current_index] = top_file
+
+                current_index -= 1
+
+
+    # Funciones de movimiento
     def mov_max_bot(self):
         self.current_tetrimino.mov_max_bot()
 
