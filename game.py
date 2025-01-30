@@ -21,7 +21,6 @@ class TetrisGame:
         self.disp_tetrimino = disp_tetrimino
         self.board = board
 
-        self.current_tetrimino = self.disp_tetrimino.next_item
 
 
     @property
@@ -36,6 +35,7 @@ class TetrisGame:
 
 
     def run(self):
+        self.current_tetrimino = self.disp_tetrimino.next_item
         self.printTetrimino()
 
 
@@ -106,11 +106,11 @@ class TetrisGame:
                 if self.board.file_is_empty(top_index):
                     break
 
-                top_file = self.board.get_file(top_index)
-                current_file = self.board.get_file(current_index)
+                style_top_file = self.board.get_data_style_off_file(top_index)
+                style_current_file = self.board.get_data_style_off_file(current_index)
 
-                self.board.content[top_index] = current_file
-                self.board.content[current_index] = top_file
+                self.board.set_data_style_to_file(top_index, style_current_file)
+                self.board.set_data_style_to_file(current_index, style_top_file)
 
                 current_index -= 1
 
