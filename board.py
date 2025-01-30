@@ -49,6 +49,16 @@ class Square(Observed):
         self.__style = value
         self.report_changes()
 
+    def get_data_style(self) -> tuple[str, bool]:
+        return (self.style, self.is_occupiable)
+    
+
+    def set_data_style(self, data_style: tuple[str, bool]):
+        style, is_ocuppiable = data_style
+
+        self.style = style
+        self.is_occupiable = is_ocuppiable
+
 
 
 class IBoard(ABC): 
@@ -103,8 +113,16 @@ class IBoard(ABC):
     def is_valid_coord_x(self, index: int) -> bool: ...
 
 
+    @abstractmethod
+    def get_data_style_off_file(self, index: int) -> tuple[tuple[str, int]]: ...
 
-class Board:
+    @abstractmethod
+    def set_data_style_to_file(self, index: int, tuple_data_style: tuple[tuple[str, int]]): ...
+
+
+
+
+class Board(IBoard):
     default_color: Color = "white"
 
     size_y: int 
@@ -245,6 +263,18 @@ class Board:
             self.in_max_limit_left(*coords),
             self.in_max_limit_right(*coords),
         ))
+    
+
+    def get_data_style_off_file(self, index) -> tuple[tuple[str, int]]:
+        file = self.get_file(index)
+        return tuple([square.get_data_style() for square in file])
+
+    def set_data_style_to_file(self, index, tuple_data_style: tuple[tuple[str, int]]):
+        file = self.get_file(index)
+
+        for square, data_style in zip(file, tuple_data_style):
+            square.set_data_style(data_style)
+        
 
 
 
