@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, TypeVar, Generic
 from observer_interface import Observer, Observed
 from cardinal import Coord
+import asyncio 
 
 from textual.app import App
 from textual.widget import Widget
@@ -138,6 +139,7 @@ class TetrisApp(App):
         self.next_piece_board.observed = game.disp_tetrimino
 
         self.game.run()
+        asyncio.create_task(self.auto_mov_down())
 
 
     async def on_key(self, event: Key) -> None:
@@ -161,6 +163,13 @@ class TetrisApp(App):
         self.game.iteration()
 
 
+
+    async def auto_mov_down(self):
+        while True:
+            await asyncio.sleep(1)
+            self.game.clearTetrimino()
+            self.game.mov_bot()
+            self.game.iteration()
 
 game = TetrisGame(DispencerTetrimino(), Board(20, 10))
 app = TetrisApp(game)
