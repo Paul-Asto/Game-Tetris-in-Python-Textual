@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import TypeVar, Generic
+from observer_interface import Observed
 from tetrimino import (
     Tetrimino,
     Tetrimino_I,
@@ -92,7 +93,7 @@ class Queue(IDispencer[T]):
 
 
 
-class DispencerTetrimino(IDispencer[Tetrimino]):
+class DispencerTetrimino(IDispencer[Tetrimino], Observed):
     pieces: tuple[Tetrimino] = (
         Tetrimino_I(),
         Tetrimino_O(),
@@ -128,4 +129,7 @@ class DispencerTetrimino(IDispencer[Tetrimino]):
         tetrimino: Tetrimino = self.pieces[self.provider_index.next_item]
 
         self.queues.add_item(tetrimino) 
-        return self.queues.next_item
+        item = self.queues.next_item
+
+        self.report_changes()
+        return item
