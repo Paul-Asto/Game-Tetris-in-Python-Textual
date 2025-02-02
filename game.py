@@ -5,6 +5,7 @@ if TYPE_CHECKING:
     from tetrimino import ITetrimino
     from disp_tetrimino import IDispencer
     from board import IBoard
+    from data_games import IAdminDataGame
 
 
 class TetrisGame:
@@ -16,10 +17,12 @@ class TetrisGame:
             self,
             disp_tetrimino: "IDispencer[ITetrimino]",
             board: "IBoard",
+            data: "IAdminDataGame",
         ):
 
         self.disp_tetrimino = disp_tetrimino
         self.board = board
+        self.data = data
 
 
 
@@ -43,14 +46,19 @@ class TetrisGame:
         shadow_coords_blocks = self.current_tetrimino.shadow_coords_blocks
         color_shadow = self.current_tetrimino.color_shadow
 
-        self.board.print_coords(
-            *shadow_coords_blocks,
-            style= color_shadow,
-            is_ocupiable= False,
-        )
-
         coords_blocks = self.current_tetrimino.coords_blocks
         color = self.current_tetrimino.color
+    
+        blocks_no_repeat = all([not block in coords_blocks for block in shadow_coords_blocks])
+
+        if blocks_no_repeat:
+
+            self.board.print_coords(
+                *shadow_coords_blocks,
+                style= color_shadow,
+                is_ocupiable= False,
+            )
+
 
         self.board.print_coords(
             *coords_blocks,
@@ -113,6 +121,9 @@ class TetrisGame:
                 self.board.set_data_style_to_file(current_index, style_top_file)
 
                 current_index -= 1
+
+        
+        self.data.add_data_point(len(index_files_update))
 
 
     # Funciones de movimiento
