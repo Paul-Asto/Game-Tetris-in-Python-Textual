@@ -94,27 +94,20 @@ class Queue(IDispencer[T]):
 
 
 class DispencerTetrimino(IDispencer[Tetrimino], Observed):
-    pieces: tuple[Tetrimino] = (
-        Tetrimino_I(),
-        Tetrimino_O(),
-        Tetrimino_T(),
-        Tetrimino_S(),
-        Tetrimino_Z(),
-        Tetrimino_J(),
-        Tetrimino_L(),
-    )
-
+    pieces: tuple[Tetrimino] 
     queues: Queue[Tetrimino]
     provider_index: ProviderRandomNumbers
 
-    def __init__(self):
+    def __init__(self, *pieces: Tetrimino):
+        super().__init__()
+
+        self.pieces = pieces
         self.queues = Queue()
         self.provider_index = ProviderRandomNumbers(0, len(self.pieces))
 
-        self.queues.add_item(self.pieces[self.provider_index.next_item])
-        self.queues.add_item(self.pieces[self.provider_index.next_item])
-        self.queues.add_item(self.pieces[self.provider_index.next_item])
-
+        self.add_item()
+        self.add_item()
+        self.add_item()
     
     @property
     def content(self) -> list[Tetrimino]:
@@ -126,10 +119,11 @@ class DispencerTetrimino(IDispencer[Tetrimino], Observed):
         if self.queues.is_empty:
             raise IndexError("No hay elementos en la cola")
         
-        tetrimino: Tetrimino = self.pieces[self.provider_index.next_item]
-
-        self.queues.add_item(tetrimino) 
+        self.add_item() 
         item = self.queues.next_item
 
         self.report_changes()
         return item
+    
+    def add_item(self):
+        self.queues.add_item(self.pieces[self.provider_index.next_item])
