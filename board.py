@@ -34,6 +34,8 @@ class Square(Observed):
     is_occupiable: bool = False
 
     def __init__(self, style: Color):
+        super().__init__()
+
         self.__style: Color = style
         
 
@@ -48,6 +50,7 @@ class Square(Observed):
         
         self.__style = value
         self.report_changes()
+
 
     def get_data_style(self) -> tuple[str, bool]:
         return (self.style, self.is_occupiable)
@@ -269,18 +272,10 @@ class Board(IBoard):
         file = self.get_file(index)
         return tuple([square.get_data_style() for square in file])
 
+
     def set_data_style_to_file(self, index, tuple_data_style: tuple[tuple[str, int]]):
         file = self.get_file(index)
 
         for square, data_style in zip(file, tuple_data_style):
             square.set_data_style(data_style)
         
-
-
-
-class TetrisBoard(Board):
-
-    def __init__(self):
-        self.size_y = 10
-        self.size_x = 10
-        super().__init__(self.size_y, self.size_x)
