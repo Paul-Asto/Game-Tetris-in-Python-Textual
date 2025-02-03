@@ -23,7 +23,7 @@ class ITetrimino(ABC):
     def reset(self): ...
 
     @abstractmethod
-    def rotate(self) -> bool: ...
+    def rotate(self): ...
 
     @abstractmethod
     def mov_max_bot(self): ...
@@ -49,7 +49,7 @@ class Tetrimino(ITetrimino):
 
     __board: "Board"
     default_vectors_gen_coords_blocks: tuple[Vector] 
-    __vectors_gen_coords_blocks: tuple[Vector] 
+    private_vectors_gen_coords_blocks: tuple[Vector] 
     __coord_core: Coord
 
     def __init__(self):
@@ -65,7 +65,7 @@ class Tetrimino(ITetrimino):
 
     @property
     def vectors_gen_coords_blocks(self) -> tuple[Vector]:
-        return self.__vectors_gen_coords_blocks
+        return self.private_vectors_gen_coords_blocks
     
     @vectors_gen_coords_blocks.setter
     def vectors_gen_coords_blocks(self, value: tuple[Vector]):
@@ -75,7 +75,7 @@ class Tetrimino(ITetrimino):
             return ValueError("El valor pasado como parmetro tiene que ser exclusivamente una coleccion de Vectores")
         
         self.default_vectors_gen_coords_blocks = value
-        self.__vectors_gen_coords_blocks = deepcopy(value)
+        self.private_vectors_gen_coords_blocks = deepcopy(value)
 
 
     @property
@@ -125,7 +125,7 @@ class Tetrimino(ITetrimino):
     
     def reset(self):
         self.coord_core.set_value((0, 0))
-        self.__vectors_gen_coords_blocks = deepcopy(self.default_vectors_gen_coords_blocks)
+        self.private_vectors_gen_coords_blocks = deepcopy(self.default_vectors_gen_coords_blocks)
         self.is_active = True
         del self.board 
 
@@ -162,27 +162,26 @@ class Tetrimino(ITetrimino):
         self.coord_core.move(vector)
 
 
-    def rotate(self) -> bool:
-        if self.board.in_max_limit_left(self.coord_core):
-            self.mov_right()
+    def rotate(self):
+        coords_core_test: tuple[Coord] = (
+            self.coord_core,
+            self.coord_core + Vector(0, -1),
+            self.coord_core + Vector(0, 1),
+            self.coord_core + Vector(-1, 0),
+        )
 
-        elif self.board.in_max_limit_right(self.coord_core):
-            self.mov_left()
-
-        elif self.board.in_max_limit_bot(self.coord_core):
-            self.mov_top()
-
-        if self.board.in_max_limits(self.coord_core): 
-            return
-        
         new_vectors: tuple[Vector] = self.gen_vectors_rotate()
-        new_coords_blocks: tuple[Coord] = self.gen_coords_blocks(vectors= new_vectors)
 
-        if not self.board.square_is_empty(*new_coords_blocks):
-            return False
-        
-        self.__vectors_gen_coords_blocks = new_vectors
-        return True
+        for coord in coords_core_test:
+            new_coords_blocks: tuple[Coord] = self.gen_coords_blocks(coord_core= coord, vectors= new_vectors)
+
+            if not self.board.square_is_empty(*new_coords_blocks):
+                continue
+            
+            self.coord_core.set_value(coord.value)
+            self.private_vectors_gen_coords_blocks = new_vectors
+
+            break 
 
 
     def mov_max_bot(self):
@@ -285,46 +284,51 @@ class Tetrimino_I(Tetrimino):
         self.index_rotate: Cycle = Cycle(0, 3)
 
 
-    def rotate(self) -> bool:
+    def rotate(self):
+        coord_init_test: Coord = self.coord_core.copy()
+
+        if self.board.in_max_limit_left(coord_init_test):
+            coord_init_test.move(Vector(0, 1))
+
+        elif self.board.in_max_limit_right(coord_init_test):
+            coord_init_test.move(Vector(0, -1))
+
+        elif self.board.in_max_limit_bot(coord_init_test):
+            coord_init_test.move(Vector(-1, 0))
+
         state_rotate = self.index_rotate.index_pointer
 
-        coord_right = self.coord_core + Vector(0, 1)
-        coord_bot = self.coord_core + Vector(1, 0)   
-        
         if state_rotate == 0:
-            self.mov_right()
-
-            if self.board.in_max_limit_bot(coord_bot):
-                self.mov_top()
-
-            elif self.board.in_max_limit_bot(self.coord_core):
-                self.mov_top()
-                self.mov_top()
+            coord_init_test.move(Vector(0, 1))
 
         elif state_rotate == 1:
-            self.mov_bot()
-
-            if self.board.in_max_limit_left(self.coord_core):
-                self.mov_right()
+            coord_init_test.move(Vector(1, 0))
 
         elif state_rotate == 2:
-            self.mov_left()
+            coord_init_test.move(Vector(0, -1))
 
         elif state_rotate == 3:
-            self.mov_top() 
+            coord_init_test.move(Vector(-1, 0))
 
-            if self.board.in_max_limit_right(coord_right):
-                self.mov_left()
+        coords_core_test: tuple[Coord] = (
+            coord_init_test,
+            coord_init_test + Vector(0, -1),
+            coord_init_test + Vector(0, 1),
+            coord_init_test + Vector(-1, 0),
+        )
+
+        new_vectors: tuple[Vector] = self.gen_vectors_rotate()
+
+        for coord in coords_core_test:
+            new_coords_blocks: tuple[Coord] = self.gen_coords_blocks(coord_core= coord, vectors= new_vectors)
+
+            if not self.board.square_is_empty(*new_coords_blocks):
+                continue
             
-            elif self.board.in_max_limit_right(self.coord_core):
-                self.mov_left()
-                self.mov_left()
-                
-
-        result_rotate: bool = super().rotate()
-
-        if result_rotate:
+            self.coord_core.set_value(coord.value)
+            self.private_vectors_gen_coords_blocks = new_vectors
             self.index_rotate.add_pointer()
+            break    
 
 
     def reset(self):
