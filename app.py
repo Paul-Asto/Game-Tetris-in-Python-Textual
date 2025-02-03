@@ -5,7 +5,8 @@ import asyncio
 
 from textual.app import App
 from textual.widget import Widget
-from textual.containers import Vertical
+from textual.widgets import Static
+from textual.containers import Vertical, Horizontal
 from textual.events import Key
 
 from disp_tetrimino import DispencerTetrimino
@@ -18,10 +19,35 @@ from game import TetrisGame
 from board import Square
 
 
-def secuence_coord_widget(size_y: tuple[int, int], size_x: tuple[int, int]):
+def secuence_coord_widget(size_y: int, size_x: int):
     for y in range(size_y):
         for x in range(size_x):
             yield Coord(y, x)
+
+
+T = TypeVar("T")
+
+class ReactiveInfo(Widget, Generic[T], Observer[T]):
+
+    def __init__(self, title: str, react_class:Observed, react_attr: str, id: str = None, classes: str = None):
+        super().__init__(id=id, classes=classes)
+
+        self.title: str = title
+
+        self.observed: Observed = react_class
+        self.react_attr: str = react_attr
+
+        self.static_title = Static(self.title)
+        self.static_content = Static(str(getattr(self.observed, self.react_attr)))
+
+        self._add_children(
+            self.static_title,
+            self.static_content,
+        )
+
+
+    def react_changes(self):
+        self.static_content.update(str(getattr(self.observed, self.react_attr)))
 
 
 
@@ -46,22 +72,22 @@ class ReactiveBlock(Block, Observer[Square]):
 
 
 
-T = TypeVar('T', bound=Block)
+TYPE_BLOCK = TypeVar('type_block', bound=Block)
 
 
 
-class ViewBoard(Vertical, Generic[T]):
-    def __init__(self, children: list[T], id = None):
+class ViewBoard(Vertical, Generic[TYPE_BLOCK]):
+    def __init__(self, children: list[TYPE_BLOCK], id = None):
         super().__init__(id=id)
 
-        self.dict_blocks: dict[Coord, T] = {}
+        self.dict_blocks: dict[Coord, TYPE_BLOCK] = {}
 
         for block in children:
             self.dict_blocks[block.coord] = block
             self._add_child(block)
 
     
-    def get_block(self, coord: Coord) -> T:
+    def get_block(self, coord: Coord) -> TYPE_BLOCK:
         return self.dict_blocks[coord]
     
 
@@ -116,17 +142,25 @@ class TetrisApp(App):
 
 
     def compose(self):
-        self.principal_board = PrincipalBoard(
-            [ReactiveBlock(coord) for coord in secuence_coord_widget(20, 10)],
-            id= "board_principal",
-        )
-        yield self.principal_board
-
-        self.next_piece_board = NextPieceBoard(
-            [Block(coord) for coord in secuence_coord_widget(10, 6)],
-            id= "board_next_pieces",
+        with Horizontal():
+            self.principal_board = PrincipalBoard(
+                [ReactiveBlock(coord) for coord in secuence_coord_widget(20, 10)],
+                id= "board_principal",
             )
-        yield self.next_piece_board
+            yield self.principal_board
+
+            self.next_piece_board = NextPieceBoard(
+                [Block(coord) for coord in secuence_coord_widget(10, 6)],
+                id= "board_next_pieces",
+                )
+            yield self.next_piece_board
+
+            with Vertical():
+                yield ReactiveInfo("Nivel", self.game.data, "current_nivel")
+                yield ReactiveInfo("Speed", self.game.data, "speed_dificult")
+                yield ReactiveInfo("N_filas", self.game.data, "n_files_colapse")
+                yield ReactiveInfo("Meta", self.game.data, "meta_next_level")
+                yield ReactiveInfo("Puntos", self.game.data, "points")
 
     
     def on_mount(self):
@@ -136,7 +170,7 @@ class TetrisApp(App):
             block.observed = square
 
         # Enlazando el next_piece_board al dispensador de teriminos
-        self.next_piece_board.observed = game.disp_tetrimino
+        self.next_piece_board.observed = self.game.disp_tetrimino
 
         self.game.run()
         asyncio.create_task(self.auto_mov_down())
@@ -163,14 +197,9 @@ class TetrisApp(App):
         self.game.iteration()
 
 
-
     async def auto_mov_down(self):
         while True:
-            await asyncio.sleep(1)
+            await asyncio.sleep(self.game.data.speed_dificult)
             self.game.clearTetrimino()
             self.game.mov_bot()
             self.game.iteration()
-
-game = TetrisGame(DispencerTetrimino(), Board(20, 10))
-app = TetrisApp(game)
-app.run()
