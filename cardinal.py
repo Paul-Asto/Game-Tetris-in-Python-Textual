@@ -107,3 +107,6 @@ class Coord(CardinalPair):
     def set_value(self, value: tuple[int, int]):
         self.value = value
         
+    
+    def copy(self) -> "Coord":
+        return Coord(self.y, self.x)
