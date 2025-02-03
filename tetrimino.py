@@ -44,8 +44,8 @@ class ITetrimino(ABC):
 
 class Tetrimino(ITetrimino):
     is_active: bool = True
-    color_shadow: str = "gray"
-    color: str = "white"
+    color_shadow: str = "black"
+    color: str = "black"
 
     __board: "Board"
     default_vectors_gen_coords_blocks: tuple[Vector] 
@@ -86,7 +86,6 @@ class Tetrimino(ITetrimino):
     @property
     def shadow_coords_blocks(self) -> tuple[Coord]:
         new_coord_core: Coord = self.coord_core
-        new_coords_blocks: tuple[Coord]
         result_coords_blocks: tuple[Coord] = ()
 
         while True:
@@ -101,12 +100,8 @@ class Tetrimino(ITetrimino):
             if self.board.in_max_limit_bot(*new_coords_blocks):
                 break
         
-        blocks_no_repeat = all([not block in self.coords_blocks for block in result_coords_blocks])
+        return result_coords_blocks
 
-        if blocks_no_repeat:
-            return result_coords_blocks
-
-        return ()
 
 
     @property
@@ -232,7 +227,6 @@ class Tetrimino_O(Tetrimino):
         super().__init__()
 
         self.vectors_gen_coords_blocks = (Vector(0, 1), Vector(-1, 0), Vector(-1, 1))
-        self.color = "yellow"
 
     def rotate(self): pass
 
@@ -244,7 +238,6 @@ class Tetrimino_T(Tetrimino):
         super().__init__()
 
         self.vectors_gen_coords_blocks = (Vector(-1, 0), Vector(0, 1), Vector(0, -1))
-        self.color = "purple"
 
 
 
@@ -254,7 +247,6 @@ class Tetrimino_S(Tetrimino):
         super().__init__()
 
         self.vectors_gen_coords_blocks = (Vector(0, -1), Vector(-1, 0), Vector(-1, 1))
-        self.color = "green"
 
 
 
@@ -264,7 +256,6 @@ class Tetrimino_Z(Tetrimino):
         super().__init__()
 
         self.vectors_gen_coords_blocks = (Vector(0, 1), Vector(-1, 0), Vector(-1, -1))
-        self.color = "red"
 
 
 
@@ -274,7 +265,6 @@ class Tetrimino_J(Tetrimino):
         super().__init__()
 
         self.vectors_gen_coords_blocks = (Vector(0, -1), Vector(0, 1), Vector(-1, -1))
-        self.color = "blue"
 
 
 
@@ -283,7 +273,6 @@ class Tetrimino_L(Tetrimino):
     def __init__(self):
         super().__init__()
         self.vectors_gen_coords_blocks = (Vector(0, -1), Vector(0, 1), Vector(-1, 1))
-        self.color = "orange"
 
 
 
@@ -293,7 +282,6 @@ class Tetrimino_I(Tetrimino):
         super().__init__()
 
         self.vectors_gen_coords_blocks = (Vector(0, -1), Vector(0, 1), Vector(0, 2))
-        self.color = "magenta"
         self.index_rotate: Cycle = Cycle(0, 3)
 
 

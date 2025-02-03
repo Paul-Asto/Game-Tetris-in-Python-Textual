@@ -17,7 +17,7 @@ class Observer(Generic[T]):
     @observed.setter
     def observed(self, observed: "Observed"):
         self.__observed = observed
-        observed.observer = self
+        observed.add_observer(self)
 
 
     def react_changes(self): ...
@@ -25,19 +25,24 @@ class Observer(Generic[T]):
 
 
 class Observed:
-    __observer: "Observer" = None
+    __observers: list["Observer"] 
+
+    def __init__(self):
+        self.__observers = []
+
 
     @property
-    def observer(self) -> "Observer": 
-        if self.__observer == None:
+    def observers(self) -> list["Observer"]: 
+        if len(self.__observers) == 0:
             raise Exception("No se tiene un observer implementado")
         
-        return self.__observer
+        return self.__observers
 
-    @observer.setter
-    def observer(self, observer: "Observer"): 
-        self.__observer = observer
+    
+    def add_observer(self, observer: "Observer"): 
+        self.__observers.append(observer)
 
 
     def report_changes(self):
-        self.observer.react_changes()
+        for observer in self.observers:
+            observer.react_changes()
