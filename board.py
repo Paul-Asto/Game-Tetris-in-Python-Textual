@@ -258,15 +258,6 @@ class Board(IBoard):
     def in_max_limit_bot(self, *coords: Coord) -> bool:
         return any([coord.y == self.size_y - 1 for coord in coords])    
 
-    
-    def in_max_limits(self, *coords: Coord) -> bool:
-        return any((
-            self.in_max_limit_top(*coords),
-            self.in_max_limit_bot(*coords),
-            self.in_max_limit_left(*coords),
-            self.in_max_limit_right(*coords),
-        ))
-    
 
     def get_data_style_off_file(self, index) -> tuple[tuple[str, int]]:
         file = self.get_file(index)
