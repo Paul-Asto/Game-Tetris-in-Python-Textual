@@ -137,6 +137,7 @@ class TetrisApp(App):
         if self.game.current_tetrimino.is_active:
             return
         
+        self.game.register_index_files_update()
         n_files_update = len(self.game.index_files_update)
 
         if n_files_update != 0:

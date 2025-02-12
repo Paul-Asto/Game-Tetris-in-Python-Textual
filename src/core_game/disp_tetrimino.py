@@ -51,6 +51,8 @@ class IDispencer(ABC, Generic[T]):
     @abstractmethod
     def next_item(self) -> T: ...
 
+    def reset(self): ...
+
 
 
 class Queue(IDispencer[T]):
@@ -80,6 +82,9 @@ class Queue(IDispencer[T]):
     def add_item(self, item: T):
         self.queues.append(item)
 
+    def reset(self):
+        self.queues.clear()
+
 
 
 class DispencerTetrimino(IDispencer["Tetrimino"]):
@@ -98,6 +103,7 @@ class DispencerTetrimino(IDispencer["Tetrimino"]):
         self.add_item()
         self.add_item()
     
+
     @property
     def content(self) -> list["Tetrimino"]:
         return self.queues.content
@@ -111,5 +117,15 @@ class DispencerTetrimino(IDispencer["Tetrimino"]):
         self.add_item() 
         return self.queues.next_item
     
+
     def add_item(self):
         self.queues.add_item(self.pieces[self.provider_index.next_item])
+
+
+    def reset(self):
+        self.queues.reset()
+        self.provider_index.reset_content()
+
+        self.add_item()
+        self.add_item()
+        self.add_item()

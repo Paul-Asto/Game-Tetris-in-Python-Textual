@@ -54,6 +54,9 @@ class ReactAdminDataGame(AdminDataGame, Observed):
         super().add_data_point(n_files)
         self.report_changes()
 
+    def reset(self):
+        super().reset()
+        self.report_changes()
 
 
 class ReactDispenserTetrimino(DispencerTetrimino, Observed):
@@ -68,3 +71,7 @@ class ReactDispenserTetrimino(DispencerTetrimino, Observed):
         self.report_changes()
 
         return item
+    
+    def reset(self):
+        super().reset()
+        self.report_changes()

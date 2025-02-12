@@ -37,6 +37,8 @@ class IAdminDataGame(ABC):
     @abstractmethod
     def set_nivel(self, nivel: int): ...
 
+    @abstractmethod
+    def reset(self): ...
 
 class AdminDataGame(IAdminDataGame):
 
@@ -101,7 +103,7 @@ class AdminDataGame(IAdminDataGame):
         points += self.get_bonnus_for_file(n_files)
         self.points += points
 
-        self.__n_files_colapse += n_files
+        self.n_files_colapse += n_files
 
         self.n_file_colapse_in_level += n_files
 
@@ -115,3 +117,10 @@ class AdminDataGame(IAdminDataGame):
 
     def set_nivel(self, nivel: int):
         self.current_nivel = nivel
+
+
+    def reset(self):
+        self.points = 0
+        self.n_file_colapse_in_level = 0
+        self.n_files_colapse = 0
+        self.current_nivel = 0

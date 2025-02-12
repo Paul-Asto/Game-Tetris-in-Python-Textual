@@ -23,6 +23,7 @@ class TetrisGame:
 
         self.is_active: bool = False
         self.coord_init: Coord = coord_init
+        self.index_files_update: list[int] = []
 
         self.disp_tetrimino = disp_tetrimino
         self.board = board
@@ -46,25 +47,11 @@ class TetrisGame:
         self.__current_tetrimino.board = self.board
 
 
-    @property
-    def index_files_update(self) -> list[int]:
-        if self.current_tetrimino.is_active:
-            return []
-
-        indexs_update = [
-            coord.y for coord in self.current_tetrimino.coords_blocks
-            if self.board.file_is_occupiable(coord.y)
-        ]
-
-        indexs_update = list(set(indexs_update)) # se elimina repeticiones
-        indexs_update.sort() 
-
-        return indexs_update
-    
-
     def reset(self):
         self.is_active = True
         self.board.clear_content()
+        self.data.reset()
+        self.disp_tetrimino.reset()
 
         try: self.current_tetrimino.reset() 
         except: pass
@@ -113,6 +100,7 @@ class TetrisGame:
         if self.current_tetrimino.is_active:
             return
         
+        self.register_index_files_update()
         n_files_update = len(self.index_files_update)
 
         if n_files_update != 0:
@@ -123,6 +111,19 @@ class TetrisGame:
         self.current_tetrimino.reset()
         self.current_tetrimino = self.disp_tetrimino.next_item
         self.print_Tetrimino()
+
+
+    def register_index_files_update(self):
+        indexs_update = [
+            coord.y for coord in self.current_tetrimino.coords_blocks
+            if self.board.file_is_occupiable(coord.y)
+        ]
+
+        indexs_update = list(set(indexs_update)) # se elminina repeticiones
+
+        self.index_files_update.clear()
+        self.index_files_update.extend(indexs_update)
+        self.index_files_update.sort()
 
 
     def clear_files_update(self):
