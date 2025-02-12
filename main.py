@@ -1,7 +1,5 @@
-from board import Board
-from disp_tetrimino import DispencerTetrimino
-from data_games import AdminDataGame, DataGame
-from tetrimino import  ( 
+from src.core_game.data_games import DataGame
+from src.core_game.tetrimino import  ( 
     Tetrimino_I,
     Tetrimino_O,
     Tetrimino_T,
@@ -11,10 +9,14 @@ from tetrimino import  (
     Tetrimino_L,
     )
 
-from game import TetrisGame
-from app import TetrisApp
+from src.reactive_components import (
+    ReactBoard,
+    ReactAdminDataGame,
+    ReactDispenserTetrimino,
+    )
 
-
+from src.core_game.game import TetrisGame
+from src.UI_Textual.app import TetrisApp
 
 
 
@@ -61,17 +63,6 @@ t_piece_L.color = COLOR_PIECE_L
 t_piece_L.color_shadow = COLOR_SHADOW
 
 
-disp_pieces = DispencerTetrimino(
-    t_piece_I,
-    t_pices_O,
-    t_piece_T,
-    t_piece_S,
-    t_piece_Z,
-    t_piece_J,
-    t_piece_L,
-)
-
-
 tetris_data = (
     DataGame(current_nivel= 0, value_point= 10, bonnus_point_for_file= (25, 50, 75), speed_dificult= 1.2, meta_files= 10),
     DataGame(current_nivel= 1, value_point= 13, bonnus_point_for_file= (30, 60, 100), speed_dificult= 1, meta_files= 15),
@@ -85,9 +76,19 @@ tetris_data = (
     DataGame(current_nivel= 9, value_point= 90, bonnus_point_for_file= (200, 500, 1250), speed_dificult= 0.1, meta_files= 75),
 )
 
-data_game = AdminDataGame(*tetris_data, nivel_init= 0)
+disp_pieces = ReactDispenserTetrimino(
+    t_piece_I,
+    t_pices_O,
+    t_piece_T,
+    t_piece_S,
+    t_piece_Z,
+    t_piece_J,
+    t_piece_L,
+)
 
-board = Board(SIZE_BOARD_Y, SIZE_BOARD_X)
+data_game = ReactAdminDataGame(*tetris_data, nivel_init= 0)
+
+board = ReactBoard(SIZE_BOARD_Y, SIZE_BOARD_X)
 
 game =  TetrisGame(
     disp_pieces,
@@ -95,7 +96,7 @@ game =  TetrisGame(
     data_game,
 )
 
-app = TetrisApp(game)
+app = TetrisApp(game, clear_animated= True)
 
 
 if __name__ == "__main__":
