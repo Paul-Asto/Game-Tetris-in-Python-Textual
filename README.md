@@ -53,3 +53,6 @@ python main.py
 
 ¡Disfruta jugando mi version de Tetris! 
 
+
+<img src="assets/gift_tetris.gif" width="800px">
+
