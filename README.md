@@ -56,3 +56,17 @@ python main.py
 
 <img src="assets/gift_tetris.gif" width="800px">
 
+# 🎮 Controles del Teclado - Tetris
+
+En este documento se explican los eventos del teclado utilizados en el juego de Tetris.
+
+## 🕹 Controles
+
+| Tecla        | Acción |
+|-------------|------------------------------------------------|
+| ⬆️ (Arriba) | Rotar la pieza en sentido horario. |
+| ⬇️ (Abajo)  | Mover la pieza hacia abajo. |
+| ⬅️ (Izquierda) | Mover la pieza a la izquierda. |
+| ➡️ (Derecha) | Mover la pieza a la derecha. |
+| Space (Espacio) | "Matar" la pieza, es decir, hacer que caiga instantáneamente hasta la posición más baja posible. |
+
