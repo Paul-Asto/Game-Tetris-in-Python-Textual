@@ -40,6 +40,8 @@ class IAdminDataGame(ABC):
     @abstractmethod
     def reset(self): ...
 
+
+
 class AdminDataGame(IAdminDataGame):
 
     def __init__(self, *data: DataGame, nivel_init: int = 0):
@@ -124,3 +126,4 @@ class AdminDataGame(IAdminDataGame):
         self.n_file_colapse_in_level = 0
         self.n_files_colapse = 0
         self.current_nivel = 0
+        

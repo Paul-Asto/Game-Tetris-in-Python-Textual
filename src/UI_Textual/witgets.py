@@ -25,13 +25,12 @@ class ReactiveInfo(Widget, Generic[T], Observer[T]):
         self.observed: "Observed" = react_class
         self.react_attr: str = react_attr
 
-        self.static_title = Static(self.title)
-        self.static_content = Static(str(getattr(self.observed, self.react_attr)))
+        self.border_title = self.title
 
-        self._add_children(
-            self.static_title,
-            self.static_content,
-        )
+        self.static_content = Static(str(getattr(self.observed, self.react_attr)))
+        
+
+        self._add_children(self.static_content,)
 
 
     def react_changes(self):
@@ -97,15 +96,15 @@ class NextPieceBoard(ViewBoard[Block], Observer["DispencerTetrimino"]):
 
         piece_1 = pieces[0]
         piece_1.coord_core.set_value((2, 2))
-        self.add_class_to_blocks(*piece_1.coords_blocks, clase = piece_1.color)
+        self.add_class_to_blocks(*piece_1.coords_blocks, clase = piece_1.color_block)
 
         piece_2 = pieces[1]
         piece_2.coord_core.set_value((5, 2))
-        self.add_class_to_blocks(*piece_2.coords_blocks, clase = piece_2.color)
+        self.add_class_to_blocks(*piece_2.coords_blocks, clase = piece_2.color_block)
 
         piece_3 = pieces[2]
         piece_3.coord_core.set_value((8, 2))
-        self.add_class_to_blocks(*piece_3.coords_blocks, clase = piece_3.color)
+        self.add_class_to_blocks(*piece_3.coords_blocks, clase = piece_3.color_block)
 
 
     def add_class_to_blocks(self, *coords: "Coord", clase: str):

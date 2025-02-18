@@ -1,4 +1,5 @@
 from src.core_game.data_games import DataGame
+from src.core_game.board import Square, Board
 from src.core_game.tetrimino import  ( 
     Tetrimino_I,
     Tetrimino_O,
@@ -10,7 +11,7 @@ from src.core_game.tetrimino import  (
     )
 
 from src.reactive_components import (
-    ReactBoard,
+    ReactSquare,
     ReactAdminDataGame,
     ReactDispenserTetrimino,
     )
@@ -35,31 +36,31 @@ COLOR_PIECE_L = "orange"
 
 
 t_piece_I = Tetrimino_I()
-t_piece_I.color = COLOR_PIECE_I
+t_piece_I.color_block = COLOR_PIECE_I
 t_piece_I.color_shadow = COLOR_SHADOW
 
-t_pices_O = Tetrimino_O()
-t_pices_O.color = COLOR_PIECE_O
-t_pices_O.color_shadow = COLOR_SHADOW
+t_piece_O = Tetrimino_O()
+t_piece_O.color_block = COLOR_PIECE_O
+t_piece_O.color_shadow = COLOR_SHADOW
 
 t_piece_T = Tetrimino_T()
-t_piece_T.color = COLOR_PIECE_T 
+t_piece_T.color_block = COLOR_PIECE_T 
 t_piece_T.color_shadow = COLOR_SHADOW
 
 t_piece_S = Tetrimino_S()
-t_piece_S.color = COLOR_PIECE_S
+t_piece_S.color_block = COLOR_PIECE_S
 t_piece_S.color_shadow = COLOR_SHADOW
 
 t_piece_Z = Tetrimino_Z()
-t_piece_Z.color = COLOR_PIECE_Z
+t_piece_Z.color_block = COLOR_PIECE_Z
 t_piece_Z.color_shadow = COLOR_SHADOW
 
 t_piece_J = Tetrimino_J()
-t_piece_J.color = COLOR_PIECE_J
+t_piece_J.color_block = COLOR_PIECE_J
 t_piece_J.color_shadow = COLOR_SHADOW
 
 t_piece_L = Tetrimino_L()
-t_piece_L.color = COLOR_PIECE_L
+t_piece_L.color_block = COLOR_PIECE_L
 t_piece_L.color_shadow = COLOR_SHADOW
 
 
@@ -78,7 +79,7 @@ tetris_data = (
 
 disp_pieces = ReactDispenserTetrimino(
     t_piece_I,
-    t_pices_O,
+    t_piece_O,
     t_piece_T,
     t_piece_S,
     t_piece_Z,
@@ -88,7 +89,7 @@ disp_pieces = ReactDispenserTetrimino(
 
 data_game = ReactAdminDataGame(*tetris_data, nivel_init= 0)
 
-board = ReactBoard(SIZE_BOARD_Y, SIZE_BOARD_X)
+board = Board[ReactSquare](SIZE_BOARD_Y, SIZE_BOARD_X, ReactSquare)
 
 game =  TetrisGame(
     disp_pieces,

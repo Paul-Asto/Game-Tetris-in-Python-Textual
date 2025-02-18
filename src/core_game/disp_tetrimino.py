@@ -51,6 +51,7 @@ class IDispencer(ABC, Generic[T]):
     @abstractmethod
     def next_item(self) -> T: ...
 
+    @abstractmethod
     def reset(self): ...
 
 

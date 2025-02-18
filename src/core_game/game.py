@@ -67,7 +67,7 @@ class TetrisGame:
         color_shadow = self.current_tetrimino.color_shadow
 
         coords_blocks = self.current_tetrimino.coords_blocks
-        color = self.current_tetrimino.color
+        color = self.current_tetrimino.color_block
 
         if not self.board.square_is_empty(*coords_blocks):
             self.is_active = False

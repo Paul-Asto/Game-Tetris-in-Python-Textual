@@ -33,17 +33,6 @@ class ReactSquare(Square, Observed):
 
 
 
-class ReactBoard(Board):
-
-    def init_content(self):
-        return [
-            [
-                ReactSquare(self.default_color) for _ in range(self.size_x)
-            ] for _ in range(self.size_y)
-        ]
-
-
-
 class ReactAdminDataGame(AdminDataGame, Observed):
 
     def __init__(self, *data, nivel_init = 0):

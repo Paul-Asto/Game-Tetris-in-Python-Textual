@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeVar, Generic
+
 
 if TYPE_CHECKING:
     from src.cardinal import Coord
@@ -41,8 +42,12 @@ class Square:
 
 
 
-class IBoard(ABC): 
-    content: list[list[Square]]
+TYPE_SQUARE = TypeVar('type_block', bound= Square)
+
+
+
+class IBoard(ABC, Generic[TYPE_SQUARE]): 
+    content: list[list[TYPE_SQUARE]]
     size_y: int 
     size_x: int 
 
@@ -53,13 +58,13 @@ class IBoard(ABC):
     def clear_coords(self, *coords: "Coord"): ...
 
     @abstractmethod
-    def get_square(self, coord: "Coord") -> Square: ...
+    def get_square(self, coord: "Coord") -> TYPE_SQUARE: ...
 
     @abstractmethod
-    def get_file(self, index: int) -> tuple[Square]: ...
+    def get_file(self, index: int) -> tuple[TYPE_SQUARE]: ...
 
     @abstractmethod
-    def clear_square(self, square: Square): ...
+    def clear_square(self, square: TYPE_SQUARE): ...
 
     @abstractmethod
     def clear_file(self, index: int): ...
@@ -97,20 +102,25 @@ class IBoard(ABC):
     @abstractmethod
     def set_data_style_to_file(self, index: int, tuple_data_style: tuple[tuple[str, int]]): ...
 
+    @abstractmethod
     def trade_style_files(self, index_file_a: int, index_file_b: int): ...
 
 
-class Board(IBoard):
+
+class Board(IBoard[TYPE_SQUARE], Generic[TYPE_SQUARE]):
     default_color: "Color" = "white"
 
     size_y: int 
     size_x: int 
 
-    content:list[list[Square]]
+    content:list[list[TYPE_SQUARE]]
+    cls_square: TYPE_SQUARE
 
-    def __init__(self, size_y: int, size_x: int):
+    def __init__(self, size_y: int, size_x: int, cls_square: TYPE_SQUARE = Square):
         self.size_y = size_y
         self.size_x = size_x
+        
+        self.cls_square = cls_square
 
         self.content = self.init_content()
 
@@ -118,25 +128,25 @@ class Board(IBoard):
     def init_content(self):
         return [
             [
-                Square(self.default_color) for _ in range(self.size_x)
+                self.cls_square(self.default_color) for _ in range(self.size_x)
             ] for _ in range(self.size_y)
         ]
 
         
     def print_coords(self, *coords: "Coord", style: str, is_ocupiable: bool = True):
         for coord in coords:
-            square: Square = self.get_square(coord)
+            square = self.get_square(coord)
             square.style = style
             square.is_occupiable = is_ocupiable
 
 
     def clear_coords(self, *coords: "Coord"):
         for coord in coords:
-            square: Square = self.get_square(coord)
+            square = self.get_square(coord)
             self.clear_square(square)
 
 
-    def clear_square(self, square: Square):
+    def clear_square(self, square: TYPE_SQUARE):
         square.style = self.default_color
         square.freeze = False
         square.is_occupiable = False
@@ -153,11 +163,11 @@ class Board(IBoard):
             self.clear_square(square)
 
 
-    def get_square(self, coord: "Coord") -> Square:
+    def get_square(self, coord: "Coord") -> TYPE_SQUARE:
         return self.content[coord.y][coord.x]
     
 
-    def get_file(self, index: int) -> tuple[Square]:
+    def get_file(self, index: int) -> tuple[TYPE_SQUARE]:
         return tuple(self.content[index])
 
 
@@ -239,3 +249,6 @@ class Board(IBoard):
 
         self.set_data_style_to_file(index_file_a, style_b)
         self.set_data_style_to_file(index_file_b, style_a)
+
+
+

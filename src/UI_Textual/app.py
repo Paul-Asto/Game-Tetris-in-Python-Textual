@@ -47,25 +47,39 @@ class TetrisApp(App):
 
     def compose(self):
         with Horizontal():
-            self.principal_board = PrincipalBoard(
-                [ReactiveBlock(coord) for coord in secuence_coord_widget(20, 10)],
-                id= "board_principal",
-            )
-            yield self.principal_board
 
-            self.next_piece_board = NextPieceBoard(
-                [Block(coord) for coord in secuence_coord_widget(10, 6)],
-                id= "board_next_pieces",
-                )
-            yield self.next_piece_board
-
-            with Vertical():
+            with Vertical(classes= "left_content"):
                 yield ReactiveInfo("Nivel", self.game.data, "current_nivel")
                 yield ReactiveInfo("Speed", self.game.data, "speed_dificult")
                 yield ReactiveInfo("N_filas", self.game.data, "n_files_colapse")
                 yield ReactiveInfo("Meta", self.game.data, "meta_next_level")
                 yield ReactiveInfo("Puntos", self.game.data, "points")
-                yield Button("Reiniciar", id= "btn_reiniciar")
+                
+
+            with Vertical(classes= "board_content"):
+                self.principal_board = PrincipalBoard(
+                    [ReactiveBlock(coord) for coord in secuence_coord_widget(20, 10)],
+                    id= "board_principal",
+                )
+                yield self.principal_board
+
+
+            with Vertical(classes= "right_content"):
+                self.next_piece_board = NextPieceBoard(
+                    [Block(coord) for coord in secuence_coord_widget(10, 6)],
+                    id= "board_next_pieces",
+                    )
+                yield self.next_piece_board
+
+                with Vertical(classes= "button_content"):
+                    yield Button("Iniciar", id= "btn_reiniciar")
+                    yield Button("Configuracion", id= "btn_config")
+                    yield Button("Salir", id= "btn_exit")
+            
+
+            with Vertical(classes= "points_content"):
+                pass
+
 
     
     def on_mount(self):
@@ -171,3 +185,7 @@ class TetrisApp(App):
         self.game.reset()
         self.game.run()
         self.reset_task_automov()
+
+    @on(Button.Pressed, "#btn_exit")
+    def exit_app(self):
+        self.exit()

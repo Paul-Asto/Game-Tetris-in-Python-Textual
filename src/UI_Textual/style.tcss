@@ -1,33 +1,75 @@
 #board_principal{
-    height: 40;
-    width: 40;
+    margin: 1;
+    height: 42;
+    width: 42;
     layout: grid;
     grid-size: 10 20;
+    border: solid;
 }
 
 #board_next_pieces{
-    height: 20;
-    width: 24;
+    margin: 1;
+    height: 22;
+    width: 26;
     layout: grid;
     grid-size: 6 10;
+    border: solid;
 }
 
-Vertical{
-    height: 40;
-    width: 40;
-    background: green;
+Vertical.left_content{
+    height: 45;
+    width: 45;
     align: center middle;
     content-align: center middle;
 }
 
+Vertical.board_content{
+    height: 45;
+    width: 45;
+    align: center middle;
+    content-align: center middle;
+}
+
+
+Vertical.right_content{
+    height: 45;
+    width: 45;
+    align: center top;
+    content-align: center middle;
+}
+
+Vertical.points_content{
+    height: 45;
+    width: 45;
+    align: center top;
+    content-align: center middle;
+}
+
+Vertical.button_content{
+    height: 20;
+    width: 26;
+    align: center middle;
+    content-align: center middle;
+}
+
+
 ReactiveInfo{
     height: 5;
     width: 15;
-    background: red;
+    border: solid;
+    border-title-align: center;
+    align: center middle;
+    margin: 2 4;
+}
+
+ReactiveInfo Static{
+    text-align: center;
 }
 
 Horizontal{
-    background: blue;
+    align: center middle;
+    content-align: center middle;
+    
 }
 
 Block{
@@ -35,6 +77,10 @@ Block{
     width: 4;
     background: white;
     border: solid;
+}
+
+Button{
+    margin: 2 0;
 }
 
 

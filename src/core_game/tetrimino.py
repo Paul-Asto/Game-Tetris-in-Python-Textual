@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 class ITetrimino(ABC):
     is_active: bool 
-    color: str
+    color_block: str
     color_shadow: str
 
     board: "Board"
@@ -45,7 +45,7 @@ class ITetrimino(ABC):
 class Tetrimino(ITetrimino):
     is_active: bool = True
     color_shadow: str = "black"
-    color: str = "black"
+    color_block: str = "black"
 
     __board: "Board"
     default_vectors_gen_coords_blocks: tuple[Vector] 
@@ -85,7 +85,7 @@ class Tetrimino(ITetrimino):
 
     @property
     def shadow_coords_blocks(self) -> tuple[Coord]:
-        new_coord_core: Coord = self.coord_core
+        new_coord_core: Coord = self.coord_core.copy()
         result_coords_blocks: tuple[Coord] = ()
 
         while True:
@@ -101,7 +101,6 @@ class Tetrimino(ITetrimino):
                 break
         
         return result_coords_blocks
-
 
 
     @property
